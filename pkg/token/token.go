@@ -1,10 +1,11 @@
 package token
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/humbertovnavarro/farwater-bank/pkg/config"
 )
 
 var userSecret []byte
@@ -15,6 +16,11 @@ var secrets [][]byte = make([][]byte, 0)
 
 type TokenType = int
 
+type Token struct {
+	Type    TokenType
+	Subject string
+}
+
 const (
 	UserToken     TokenType = iota
 	ItemCardToken TokenType = iota
@@ -22,11 +28,11 @@ const (
 )
 
 func init() {
-	userSecret = []byte(config.AssertEnv("USER_SECRET"))
+	userSecret = []byte(os.Getenv("USER_SECRET"))
 	secrets = append(secrets, userSecret)
-	itemCardSecret = []byte(config.AssertEnv("ITEM_CARD_SECRET"))
+	itemCardSecret = []byte(os.Getenv("ITEMCARD_SECRET"))
 	secrets = append(secrets, itemCardSecret)
-	adminSecret = []byte(config.AssertEnv("ADMIN_SECRET"))
+	adminSecret = []byte(os.Getenv("ADMIN_SECRET"))
 	secrets = append(secrets, adminSecret)
 }
 
@@ -38,11 +44,26 @@ func SignedString(tokenType TokenType, subject string) (string, error) {
 	return token.SignedString(secret)
 }
 
-func ParseToken(token string, tokenType TokenType) (*jwt.Token, error) {
-	return jwt.ParseWithClaims(token, jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+func ParseToken(tokenString string, tokenType TokenType) (*Token, error) {
+	token, err := jwt.ParseWithClaims(tokenString, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return secrets[tokenType], nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	claims := token.Claims.(jwt.MapClaims)
+	if claims["sub"] == nil {
+		return nil, errors.New("nil subject on token")
+	}
+	subject := claims["sub"].(string)
+	if subject == "" {
+		return nil, errors.New("empty subject on token")
+	}
+	return &Token{
+		Type:    tokenType,
+		Subject: subject,
+	}, nil
 }

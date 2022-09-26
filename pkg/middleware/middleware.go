@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/humbertovnavarro/farwater-bank/pkg/token"
 	"github.com/sirupsen/logrus"
 )
@@ -35,17 +34,12 @@ func authentication(tokenType token.TokenType) gin.HandlerFunc {
 			writeUnauthorizedError(c)
 			return
 		}
-		verifiedToken, err := token.ParseToken(tokenString, tokenType)
+		token, err := token.ParseToken(tokenString, tokenType)
 		if err != nil {
 			logrus.Error(err)
 			writeUnauthorizedError(c)
 			return
 		}
-		claims := verifiedToken.Claims.(jwt.StandardClaims)
-		authorization := &RequestAuthorization{
-			Subject:   claims.Subject,
-			TokenType: tokenType,
-		}
-		c.Set("authorization", authorization)
+		c.Set("authorization", token)
 	}
 }
