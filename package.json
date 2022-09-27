@@ -6,7 +6,6 @@
   "scripts": {
     "test": "go test ./...",
     "prepare": "husky install",
-    "server": "docker-compose up",
-    "client": "cd clients/webapp && npm run dev"
+    "dev": "docker-compose -f docker-compose-dev.yml up"
   }
 }
