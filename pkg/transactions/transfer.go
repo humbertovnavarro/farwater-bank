@@ -2,17 +2,14 @@ package transactions
 
 import (
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
 )
 
-type transfer struct {
-	gorm.Model
-	Item        string
-	Amount      uint64
-	AccountID   uint
-	ToAccountID uint
-	Escrow      string
+type Transfer struct {
+	database.Transfer
 }
+
 type TransferOptions struct {
 	AccountID   uint
 	Item        string
@@ -21,12 +18,14 @@ type TransferOptions struct {
 	Escrow      string
 }
 
-func NewTransfer(t TransferOptions, db *gorm.DB) (transaction *transfer, from *balance.Balance, to *balance.Balance, err error) {
-	tx := &transfer{
-		Item:      t.Item,
-		AccountID: t.AccountID,
-		Amount:    t.Amount,
-		Escrow:    t.Escrow,
+func NewTransfer(t TransferOptions, db *gorm.DB) (transaction *Transfer, from *balance.Balance, to *balance.Balance, err error) {
+	tx := &Transfer{
+		database.Transfer{
+			Item:      t.Item,
+			AccountID: t.AccountID,
+			Amount:    t.Amount,
+			Escrow:    t.Escrow,
+		},
 	}
 	fromB, err := balance.RemoveItems(t.AccountID, t.Item, t.Amount, db)
 	if err != nil {

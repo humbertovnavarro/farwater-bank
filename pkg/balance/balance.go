@@ -3,14 +3,12 @@ package balance
 import (
 	"fmt"
 
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
 )
 
 type Balance struct {
-	gorm.Model
-	AccountID uint
-	Item      string
-	Quantity  uint64
+	database.Balance
 }
 
 func AddItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Balance, error) {
@@ -19,9 +17,11 @@ func AddItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Balance
 
 	if err == gorm.ErrRecordNotFound {
 		newBalance := &Balance{
-			AccountID: accountID,
-			Item:      item,
-			Quantity:  amount,
+			database.Balance{
+				AccountID: accountID,
+				Item:      item,
+				Quantity:  amount,
+			},
 		}
 		err := db.Create(newBalance).Error
 		if err != nil {
@@ -35,9 +35,11 @@ func AddItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Balance
 		return nil, err
 	}
 	return &Balance{
-		AccountID: accountID,
-		Item:      item,
-		Quantity:  balance.Quantity + amount,
+		database.Balance{
+			AccountID: accountID,
+			Item:      item,
+			Quantity:  balance.Quantity + amount,
+		},
 	}, nil
 }
 
@@ -56,8 +58,10 @@ func RemoveItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Bala
 		return nil, err
 	}
 	return &Balance{
-		AccountID: accountID,
-		Item:      item,
-		Quantity:  balance.Quantity + amount,
+		database.Balance{
+			AccountID: accountID,
+			Item:      item,
+			Quantity:  balance.Quantity + amount,
+		},
 	}, nil
 }

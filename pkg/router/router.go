@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/humbertovnavarro/farwater-bank/pkg/db"
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 )
 
 func New() *gin.Engine {
 	r := gin.Default()
-	db := db.New()
+	db := database.New()
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})

@@ -2,15 +2,12 @@ package transactions
 
 import (
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
 )
 
-type withdrawal struct {
-	gorm.Model
-	Item      string
-	Amount    uint64
-	AccountID uint
-	Escrow    string
+type Withdrawal struct {
+	database.Withdrawal
 }
 
 type WithdrawalOptions struct {
@@ -20,12 +17,14 @@ type WithdrawalOptions struct {
 	Escrow    string
 }
 
-func NewWithdrawal(w WithdrawalOptions, db *gorm.DB) (*withdrawal, *balance.Balance, error) {
-	tx := &withdrawal{
-		Item:      w.item,
-		AccountID: w.AccountID,
-		Amount:    w.Amount,
-		Escrow:    w.Escrow,
+func NewWithdrawal(w WithdrawalOptions, db *gorm.DB) (*Withdrawal, *balance.Balance, error) {
+	tx := &Withdrawal{
+		database.Withdrawal{
+			Item:      w.item,
+			AccountID: w.AccountID,
+			Amount:    w.Amount,
+			Escrow:    w.Escrow,
+		},
 	}
 	b, err := balance.RemoveItems(w.AccountID, w.item, w.Amount, db)
 	if err != nil {

@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -11,5 +12,6 @@ func NewMockDB() *gorm.DB {
 	if err != nil {
 		logrus.Panic(err)
 	}
+	database.ApplySchema(db)
 	return db
 }

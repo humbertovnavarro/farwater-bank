@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -19,5 +19,6 @@ func New() *gorm.DB {
 	if err != nil {
 		logrus.Panic(err)
 	}
+	ApplySchema(db)
 	return db
 }

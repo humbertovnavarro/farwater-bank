@@ -2,15 +2,12 @@ package transactions
 
 import (
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
 )
 
 type Deposit struct {
-	gorm.Model
-	Item      string
-	Amount    uint64
-	AccountID uint
-	Escrow    string
+	database.Deposit
 }
 
 type DepositOptions struct {
@@ -22,10 +19,12 @@ type DepositOptions struct {
 
 func NewDeposit(d DepositOptions, db *gorm.DB) (*Deposit, *balance.Balance, error) {
 	tx := &Deposit{
-		Item:      d.Item,
-		AccountID: d.AccountID,
-		Amount:    d.Amount,
-		Escrow:    d.Escrow,
+		database.Deposit{
+			Item:      d.Item,
+			AccountID: d.AccountID,
+			Amount:    d.Amount,
+			Escrow:    d.Escrow,
+		},
 	}
 	b, err := balance.AddItems(d.AccountID, d.Item, d.Amount, db)
 	if err != nil {
