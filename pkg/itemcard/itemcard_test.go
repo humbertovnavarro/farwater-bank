@@ -15,17 +15,18 @@ func TestMain(m *testing.M) {
 	db.AutoMigrate(account.Account{})
 	db.AutoMigrate(ItemCard{})
 	account.Register("notch", "1234", db)
+	peppers = []string{"1", "2", "3", "4"}
 	m.Run()
 }
-func TestIssue(t *testing.T) {
-	a, err := account.Register("notch", "1234", db)
+
+func Test(t *testing.T) {
+	card, err := Issue(1, "1234", db)
 	assert.Nil(t, err)
-	assert.NotNil(t, a)
-	card, err := Issue(a.ID, "salt", db)
+	assert.Equal(t, uint(1), card.AccountID)
+	assert.NotEmpty(t, card.Salt)
+	assert.NotEmpty(t, card.Token)
+	token, err := token.ParseToken(card.Token, token.ItemCardToken)
 	assert.Nil(t, err)
-	assert.NotNil(t, card)
-	assert.Equal(t, a.ID, card.AccountID)
-	assert.Equal(t, card.Frozen, false)
-	tokenString, _ := token.SignedString(token.ItemCardToken, "1")
-	assert.Equal(t, card.Token, tokenString)
+	assert.Equal(t, token.Subject, "1")
+	assert.Nil(t, ValidatePin(card.ID, "1234", db))
 }
