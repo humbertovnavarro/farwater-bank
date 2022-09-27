@@ -1,9 +1,12 @@
 {
   "devDependencies": {
+    "concurrently": "^7.4.0",
     "husky": "^8.0.1"
   },
   "scripts": {
     "test": "go test ./...",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "server": "docker-compose up",
+    "client": "cd clients/webapp && npm run dev"
   }
 }
