@@ -9,8 +9,6 @@ import (
 func TestSignedString(t *testing.T) {
 	userSecret = []byte("user")
 	adminSecret = []byte("admin")
-	itemCardSecret = []byte("itemcard")
-
 	lastTokenType := AdminToken
 	for i := 0; i < lastTokenType; i++ {
 		tokenType := i

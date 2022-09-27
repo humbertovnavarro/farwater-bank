@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func New() *gorm.DB {
+var New = func() *gorm.DB {
 	dbHost := os.Getenv("DATABASE_HOST")
 	dbUser := os.Getenv("DATABASE_USER")
 	dbPass := os.Getenv("DATABASE_PASSWORD")

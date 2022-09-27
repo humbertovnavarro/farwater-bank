@@ -24,6 +24,14 @@ func init() {
 	}
 }
 
+func GetByID(id uint, db *gorm.DB) (*Account, error) {
+	account := &Account{}
+	if err := db.First(account, id).Error; err != nil {
+		return nil, err
+	}
+	return account, nil
+}
+
 func GetByUUID(uuid string, db *gorm.DB) (*Account, error) {
 	account := &Account{}
 	if err := db.First(account, "minecraft_uuid = ?", uuid).Error; err != nil {

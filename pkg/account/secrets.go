@@ -10,11 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type AccountPin struct {
-	Pin  string `field:"pin"`
-	Salt string `field:"pin_salt"`
-}
-
 func HashSecret(secret string) (secretSalt string, secretHex string, err error) {
 	salt := uuid.New().String()
 	pepper := peppers[rand.Int()%len(peppers)]

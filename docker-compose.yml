@@ -1,0 +1,22 @@
+
+services:
+  dev:
+    image: cosmtrek/air
+    working_dir: /app
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/app
+    env_file:
+      - dev.env
+    depends_on:
+      - "postgres"
+    tty: true
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: dev
+    tty: false
+    logging:
+      driver: none

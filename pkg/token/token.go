@@ -9,7 +9,6 @@ import (
 )
 
 var userSecret []byte
-var itemCardSecret []byte
 var adminSecret []byte
 
 var secrets [][]byte = make([][]byte, 0)
@@ -30,8 +29,6 @@ const (
 func init() {
 	userSecret = []byte(os.Getenv("USER_SECRET"))
 	secrets = append(secrets, userSecret)
-	itemCardSecret = []byte(os.Getenv("ITEMCARD_SECRET"))
-	secrets = append(secrets, itemCardSecret)
 	adminSecret = []byte(os.Getenv("ADMIN_SECRET"))
 	secrets = append(secrets, adminSecret)
 }

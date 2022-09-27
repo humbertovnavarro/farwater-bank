@@ -1,0 +1,5 @@
+.env
+!dev.env
+node_modules
+.svelte-kit
+tmp

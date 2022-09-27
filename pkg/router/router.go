@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
+	"github.com/humbertovnavarro/farwater-bank/pkg/routes"
 )
 
 func New() *gin.Engine {
@@ -13,6 +14,8 @@ func New() *gin.Engine {
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})
+	r.POST("/atm/register", routes.Register)
+	r.POST("/atm/verify-pin", routes.VerifyPin)
 	return r
 }
 

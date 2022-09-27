@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "husky": "^8.0.1"
+  },
+  "scripts": {
+    "test": "go test ./...",
+    "prepare": "husky install"
+  }
+}
