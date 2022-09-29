@@ -1,4 +1,4 @@
-package routes
+package atm
 
 import (
 	"net/http"
@@ -19,12 +19,13 @@ func Balance(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "bad JSON",
 		})
+		return
 	}
 	db := c.MustGet("db").(*gorm.DB)
 	b, err := balance.Get(req.AccountID, req.Item, db)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"quantity": 0,
+			"error": "account not found",
 		})
 	} else {
 		c.AbortWithStatusJSON(http.StatusOK, gin.H{

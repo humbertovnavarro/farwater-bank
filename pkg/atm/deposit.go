@@ -1,4 +1,4 @@
-package routes
+package atm
 
 import (
 	"net/http"

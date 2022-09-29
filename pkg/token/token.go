@@ -9,9 +9,11 @@ import (
 )
 
 var userSecret []byte
-var adminSecret []byte
+var ATMSecret []byte
 
 var secrets [][]byte = make([][]byte, 0)
+var headers []string = []string{"u", "a"}
+var headerMap map[string]TokenType = make(map[string]int)
 
 type TokenType = int
 
@@ -21,15 +23,17 @@ type Token struct {
 }
 
 const (
-	UserToken  TokenType = iota
-	AdminToken TokenType = iota
+	UserToken TokenType = iota
+	ATMToken  TokenType = iota
 )
 
 func init() {
 	userSecret = []byte(os.Getenv("USER_SECRET"))
 	secrets = append(secrets, userSecret)
-	adminSecret = []byte(os.Getenv("ADMIN_SECRET"))
-	secrets = append(secrets, adminSecret)
+	ATMSecret = []byte(os.Getenv("ATM_SECRET"))
+	secrets = append(secrets, ATMSecret)
+	headerMap["u"] = UserToken
+	headerMap["a"] = ATMToken
 }
 
 func SignedString(tokenType TokenType, subject string) (string, error) {
@@ -37,10 +41,19 @@ func SignedString(tokenType TokenType, subject string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": subject,
 	})
-	return token.SignedString(secret)
+	tokenString, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s%s", headers[tokenType], tokenString), nil
 }
 
-func ParseToken(tokenString string, tokenType TokenType) (*Token, error) {
+func ParseToken(rawTokenString string) (*Token, error) {
+	if len(rawTokenString) < 1 {
+		return nil, errors.New("bad token")
+	}
+	tokenString := rawTokenString[1:]
+	tokenType := headerMap[rawTokenString[0:1]]
 	token, err := jwt.ParseWithClaims(tokenString, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

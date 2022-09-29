@@ -1,4 +1,4 @@
-package routes
+package atm
 
 import (
 	"net/http"
@@ -26,8 +26,8 @@ func Register(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	a, err := account.Register(registration.Username, registration.Password, registration.Pin, db)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "could not register account",
+		c.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"error": err.Error(),
 		})
 		logrus.Error(err)
 		return

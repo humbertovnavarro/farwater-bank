@@ -10,7 +10,7 @@ import (
 )
 
 var UserAuthentication = authentication(token.UserToken)
-var AdminAuthentication = authentication(token.AdminToken)
+var ATMAuthentication = authentication(token.ATMToken)
 
 func writeUnauthorizedError(c *gin.Context) {
 	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -18,7 +18,7 @@ func writeUnauthorizedError(c *gin.Context) {
 	})
 }
 
-func authentication(tokenType token.TokenType) gin.HandlerFunc {
+func authentication(acceptableTokenTypes ...token.TokenType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header["Authorization"]
 		if len(authHeader) < 1 || authHeader[0] == "" {
@@ -32,17 +32,20 @@ func authentication(tokenType token.TokenType) gin.HandlerFunc {
 			logrus.Errorf("authentication failed: %s", c.RemoteIP())
 			return
 		}
-		token, err := token.ParseToken(tokenString, tokenType)
+		token, err := token.ParseToken(tokenString)
 		if err != nil {
-			logrus.Error(err)
 			writeUnauthorizedError(c)
-			logrus.Errorf("authentication failed: %s", c.RemoteIP())
 			return
 		}
-		if token.Type != tokenType {
-			writeUnauthorizedError(c)
-			logrus.Errorf("authentication failed: %s", c.RemoteIP())
+		for _, tokenType := range acceptableTokenTypes {
+			if tokenType == token.Type {
+				c.Set("authorization", token)
+				c.Next()
+				return
+			}
 		}
-		c.Set("authorization", token)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
 	}
 }

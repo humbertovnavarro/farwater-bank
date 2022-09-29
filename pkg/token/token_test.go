@@ -8,18 +8,18 @@ import (
 
 func TestSignedString(t *testing.T) {
 	userSecret = []byte("user")
-	adminSecret = []byte("admin")
-	lastTokenType := AdminToken
-	for i := 0; i < lastTokenType; i++ {
-		tokenType := i
-		tokenString, err := SignedString(tokenType, "bar")
-		if err != nil {
-			t.Fail()
-		}
-		assert.True(t, len(tokenString) > 3)
-		token, err := ParseToken(tokenString, tokenType)
-		assert.Nil(t, err)
-		assert.Equal(t, token.Subject, "bar")
-		assert.Equal(t, token.Type, tokenType)
-	}
+	ATMSecret = []byte("atm")
+	tokenString, err := SignedString(ATMToken, "bar")
+	assert.Nil(t, err)
+	token, err := ParseToken(tokenString)
+	assert.Nil(t, err)
+	assert.Equal(t, "bar", token.Subject)
+	assert.Equal(t, 1, token.Type)
+
+	tokenString, err = SignedString(UserToken, "bar")
+	assert.Nil(t, err)
+	token, err = ParseToken(tokenString)
+	assert.Nil(t, err)
+	assert.Equal(t, "bar", token.Subject)
+	assert.Equal(t, 0, token.Type)
 }

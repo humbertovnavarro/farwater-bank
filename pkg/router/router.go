@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/humbertovnavarro/farwater-bank/pkg/atm"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"github.com/humbertovnavarro/farwater-bank/pkg/middleware"
-	"github.com/humbertovnavarro/farwater-bank/pkg/routes"
 )
 
 func New() *gin.Engine {
@@ -15,11 +15,13 @@ func New() *gin.Engine {
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})
-	r.POST("/atm/deposit", middleware.AdminAuthentication, routes.Deposit)
-	r.POST("/atm/balance", middleware.AdminAuthentication, routes.Balance)
-	r.POST("/atm/withdrawal", middleware.AdminAuthentication, routes.Withdrawal)
-	r.POST("/atm/register", middleware.AdminAuthentication, routes.Register)
-	r.POST("/atm/verify-pin", middleware.AdminAuthentication, routes.VerifyPin)
+	r.GET("/atm/account/:uuid", middleware.ATMAuthentication, atm.Account)
+	r.POST("/atm/transfer", middleware.ATMAuthentication, atm.Transfer)
+	r.POST("/atm/deposit", middleware.ATMAuthentication, atm.Deposit)
+	r.POST("/atm/balance", middleware.ATMAuthentication, atm.Balance)
+	r.POST("/atm/withdrawal", middleware.ATMAuthentication, atm.Withdrawal)
+	r.POST("/atm/register", middleware.ATMAuthentication, atm.Register)
+	r.POST("/atm/verify-pin", middleware.ATMAuthentication, atm.VerifyPin)
 	return r
 }
 

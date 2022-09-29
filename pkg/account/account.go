@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"os"
 	"strings"
 
@@ -42,6 +43,10 @@ func Register(username string, password string, pin string, db *gorm.DB) (*Accou
 	uuid, err := minecraft.FetchUUID(username)
 	if err != nil {
 		return nil, err
+	}
+	_, err = GetByUUID(uuid, db)
+	if err != gorm.ErrRecordNotFound {
+		return nil, errors.New("account already exists")
 	}
 	passwordSalt, hashedPassword, err := HashSecret(password)
 	if err != nil {

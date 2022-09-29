@@ -5,13 +5,12 @@ import (
 
 	mocks_test "github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
 var notchUUID = "069a79f444e94726a5befca90e38aaf5"
-var db *gorm.DB = mocks_test.NewMockDB()
 
 func TestRegister(t *testing.T) {
+	db := mocks_test.NewMockDB()
 	// register
 	_, err := Register("notch", "1234", "1234", db)
 	assert.Nil(t, err)
@@ -29,5 +28,26 @@ func TestRegister(t *testing.T) {
 	_, err = Register("_", "1234", "1234", db)
 	assert.Error(t, err)
 	assert.Equal(t, "could not fetch minecraft uuid", err.Error())
+
+}
+
+func TestVerifyPin(t *testing.T) {
+	db := mocks_test.NewMockDB()
+	a, err := Register("notch", "password", "1234", db)
+	assert.Nil(t, err)
+	pinErr := a.VerifyPin("1234")
+	assert.Nil(t, pinErr)
+	pinErr = a.VerifyPassword("wrong")
+	assert.NotNil(t, pinErr)
+}
+
+func TestVerifyPassword(t *testing.T) {
+	db := mocks_test.NewMockDB()
+	a, err := Register("notch", "password", "1234", db)
+	assert.Nil(t, err)
+	passwordErr := a.VerifyPassword("password")
+	assert.Nil(t, passwordErr)
+	passwordErr = a.VerifyPassword("wrong")
+	assert.NotNil(t, passwordErr)
 
 }

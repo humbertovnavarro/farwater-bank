@@ -1,4 +1,4 @@
-package routes
+package atm
 
 import (
 	"net/http"
@@ -9,16 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type WithdrawalRequest struct {
-	AccountID uint   `json:"account_id"`
-	Item      string `json:"item"`
-	Quantity  uint64 `json:"quantity"`
-	Escrow    string `json:"escrow"`
+type TransferRequest struct {
+	AccountID   uint   `json:"account_id"`
+	ToAccountID uint   `json:"to_account_id"`
+	Item        string `json:"item"`
+	Quantity    uint64 `json:"quantity"`
+	Escrow      string `json:"escrow"`
 }
 
-func Withdrawal(c *gin.Context) {
+func Transfer(c *gin.Context) {
 	auth := c.MustGet("authorization").(*token.Token)
-	request := &WithdrawalRequest{}
+	request := &TransferRequest{}
 	if err := c.BindJSON(request); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "bad JSON syntax",
@@ -26,11 +27,12 @@ func Withdrawal(c *gin.Context) {
 		return
 	}
 	db := c.MustGet("db").(*gorm.DB)
-	w, err := transactions.NewWithdrawal(transactions.WithdrawalOptions{
-		AccountID: request.AccountID,
-		Item:      request.Item,
-		Quantity:  request.Quantity,
-		Escrow:    auth.Subject,
+	w, err := transactions.NewTransfer(transactions.TransferOptions{
+		AccountID:   request.AccountID,
+		Item:        request.Item,
+		Quantity:    request.Quantity,
+		Escrow:      auth.Subject,
+		ToAccountID: request.ToAccountID,
 	}, db)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{

@@ -1,4 +1,4 @@
-package routes
+package atm
 
 import (
 	"net/http"
@@ -17,11 +17,11 @@ type VerifyPinRequest struct {
 
 func VerifyPin(c *gin.Context) {
 	authorization := c.MustGet("authorization").(*token.Token)
-	if !(authorization.Type == token.AdminToken) {
+	if !(authorization.Type == token.ATMToken) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
+			"error": "bad token",
 		})
-		logrus.Panic("got wrong token type while trying to verify aa pin")
+		logrus.Panic("got wrong token type while trying to verify a pin")
 		return
 	}
 	request := &VerifyPinRequest{}
@@ -34,11 +34,11 @@ func VerifyPin(c *gin.Context) {
 	a, err := account.GetByUUID(request.MinecraftUUID, db)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
+			"error": "account not found",
 		})
 	}
 	err = a.VerifyPin(request.Pin)
-	if err != nil {
+	if err == nil {
 		c.AbortWithStatus(http.StatusOK)
 	} else {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
