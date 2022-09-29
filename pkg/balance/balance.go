@@ -57,6 +57,9 @@ func AddItems(accountID uint, item string, quantity uint64, db *gorm.DB) error {
 
 func RemoveItems(accountID uint, item string, quantity uint64, db *gorm.DB) error {
 	existing, err := Get(accountID, item, db)
+	if err == gorm.ErrRecordNotFound {
+		return fmt.Errorf("%d attempted to overdraft %s", accountID, item)
+	}
 	if err != nil {
 		return err
 	}

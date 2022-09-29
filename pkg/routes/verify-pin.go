@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/humbertovnavarro/farwater-bank/pkg/account"
-	"github.com/humbertovnavarro/farwater-bank/pkg/middleware"
 	"github.com/humbertovnavarro/farwater-bank/pkg/token"
 	"gorm.io/gorm"
 )
@@ -29,8 +28,8 @@ func (r *VerifyPinRequest) Valid() error {
 }
 
 func VerifyPin(c *gin.Context) {
-	authorization := c.MustGet("authorization").(*middleware.RequestAuthorization)
-	if !(authorization.TokenType == token.AdminToken) {
+	authorization := c.MustGet("authorization").(*token.Token)
+	if !(authorization.Type == token.AdminToken) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized",
 		})

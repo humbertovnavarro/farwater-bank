@@ -63,7 +63,6 @@ func TestRemoveItems(t *testing.T) {
 
 	err := RemoveItems(1, "minecraft:dirt", 64, db)
 	assert.Error(t, err)
-	assert.Equal(t, "record not found", err.Error())
 
 	err = AddItems(1, "minecraft:dirt", 66, db)
 	assert.Nil(t, err)

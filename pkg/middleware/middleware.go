@@ -18,11 +18,6 @@ func writeUnauthorizedError(c *gin.Context) {
 	})
 }
 
-type RequestAuthorization struct {
-	Subject   string
-	TokenType token.TokenType
-}
-
 func authentication(tokenType token.TokenType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header["Authorization"]
