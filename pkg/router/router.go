@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/humbertovnavarro/farwater-bank/pkg/database"
+	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 	"github.com/humbertovnavarro/farwater-bank/pkg/routes"
 )
 
 func New() *gin.Engine {
 	r := gin.Default()
-	db := database.New()
+	db := mocks.NewMockDB()
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})

@@ -11,6 +11,9 @@ const LISTEN = "127.0.0.1:8081"
 
 // sets up a mock environment to test rest api responsses
 func MockSetup() {
+	os.Setenv("USER_SECRET", "user")
+	os.Setenv("ADMIN_SECRET", "admin")
+	os.Setenv("PEPPERS", "1,2,3,4")
 	os.Setenv("LISTEN", LISTEN)
 	database.New = NewMockDB
 }

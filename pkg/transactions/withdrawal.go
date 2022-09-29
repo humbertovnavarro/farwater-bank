@@ -1,6 +1,8 @@
 package transactions
 
 import (
+	"errors"
+
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
@@ -12,26 +14,27 @@ type Withdrawal struct {
 
 type WithdrawalOptions struct {
 	AccountID uint
-	item      string
-	Amount    uint64
+	Item      string
+	Quantity  uint64
 	Escrow    string
 }
 
-func NewWithdrawal(w WithdrawalOptions, db *gorm.DB) (*Withdrawal, *balance.Balance, error) {
-	tx := &Withdrawal{
-		database.Withdrawal{
-			Item:      w.item,
-			AccountID: w.AccountID,
-			Amount:    w.Amount,
-			Escrow:    w.Escrow,
-		},
-	}
-	b, err := balance.RemoveItems(w.AccountID, w.item, w.Amount, db)
+func NewWithdrawal(w WithdrawalOptions, db *gorm.DB) (*Withdrawal, error) {
+	err := balance.RemoveItems(w.AccountID, w.Item, w.Quantity, db)
 	if err != nil {
-		return nil, nil, err
+		return nil, errors.New("zero balance")
 	}
-	if err := db.Create(tx).Error; err != nil {
-		return nil, nil, err
+	databaseWithdrawal := &database.Withdrawal{
+		AccountID: w.AccountID,
+		Item:      w.Item,
+		Quantity:  w.Quantity,
+		Escrow:    w.Escrow,
 	}
-	return tx, b, nil
+	err = db.Create(databaseWithdrawal).Error
+	if err != nil {
+		return nil, err
+	}
+	return &Withdrawal{
+		*databaseWithdrawal,
+	}, nil
 }

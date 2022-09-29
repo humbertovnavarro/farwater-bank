@@ -15,7 +15,7 @@ type Account struct {
 type Deposit struct {
 	gorm.Model
 	Item      string
-	Amount    uint64
+	Quantity  uint64
 	AccountID uint
 	Escrow    string
 }
@@ -23,7 +23,7 @@ type Deposit struct {
 type Transfer struct {
 	gorm.Model
 	Item        string
-	Amount      uint64
+	Quantity    uint64
 	AccountID   uint
 	ToAccountID uint
 	Escrow      string
@@ -32,7 +32,7 @@ type Transfer struct {
 type Withdrawal struct {
 	gorm.Model
 	Item      string
-	Amount    uint64
+	Quantity  uint64
 	AccountID uint
 	Escrow    string
 }

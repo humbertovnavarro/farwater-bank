@@ -10,6 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var peppers []string
+
 func HashSecret(secret string) (secretSalt string, secretHex string, err error) {
 	salt := uuid.New().String()
 	pepper := peppers[rand.Int()%len(peppers)]

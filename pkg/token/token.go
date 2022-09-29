@@ -21,9 +21,8 @@ type Token struct {
 }
 
 const (
-	UserToken     TokenType = iota
-	ItemCardToken TokenType = iota
-	AdminToken    TokenType = iota
+	UserToken  TokenType = iota
+	AdminToken TokenType = iota
 )
 
 func init() {

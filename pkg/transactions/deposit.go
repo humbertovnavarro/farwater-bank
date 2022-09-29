@@ -13,25 +13,26 @@ type Deposit struct {
 type DepositOptions struct {
 	AccountID uint
 	Item      string
-	Amount    uint64
+	Quantity  uint64
 	Escrow    string
 }
 
-func NewDeposit(d DepositOptions, db *gorm.DB) (*Deposit, *balance.Balance, error) {
-	tx := &Deposit{
-		database.Deposit{
-			Item:      d.Item,
-			AccountID: d.AccountID,
-			Amount:    d.Amount,
-			Escrow:    d.Escrow,
-		},
-	}
-	b, err := balance.AddItems(d.AccountID, d.Item, d.Amount, db)
+func NewDeposit(d DepositOptions, db *gorm.DB) (*Deposit, error) {
+	err := balance.AddItems(d.AccountID, d.Item, d.Quantity, db)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	if err := db.Create(tx).Error; err != nil {
-		return nil, nil, err
+	databaseDeposit := &database.Deposit{
+		AccountID: d.AccountID,
+		Item:      d.Item,
+		Quantity:  d.Quantity,
+		Escrow:    d.Escrow,
 	}
-	return tx, b, nil
+	err = db.Create(databaseDeposit).Error
+	if err != nil {
+		return nil, err
+	}
+	return &Deposit{
+		*databaseDeposit,
+	}, nil
 }

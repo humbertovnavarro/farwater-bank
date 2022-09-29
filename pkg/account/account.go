@@ -14,8 +14,6 @@ type Account struct {
 	database.Account
 }
 
-var peppers []string
-
 func init() {
 	peppersString := os.Getenv("PEPPERS")
 	peppers = strings.Split(peppersString, ",")

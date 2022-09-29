@@ -8,7 +8,7 @@ import (
 )
 
 func NewMockDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
 		logrus.Panic(err)
 	}

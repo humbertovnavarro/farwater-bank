@@ -1,8 +1,10 @@
 package balance
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/humbertovnavarro/farwater-bank/pkg/account"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
 	"gorm.io/gorm"
 )
@@ -11,57 +13,63 @@ type Balance struct {
 	database.Balance
 }
 
-func AddItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Balance, error) {
-	balance := &Balance{}
-	err := db.Find(balance).Where("account_id = ? AND item = ?").Error
-
-	if err == gorm.ErrRecordNotFound {
-		newBalance := &Balance{
-			database.Balance{
-				AccountID: accountID,
-				Item:      item,
-				Quantity:  amount,
-			},
-		}
-		err := db.Create(newBalance).Error
-		if err != nil {
-			return nil, err
-		}
-		return newBalance, nil
-	}
-
-	err = db.Model(&Balance{}).Where("id = ?", balance.ID).Update("quantity", balance.Quantity+amount).Error
+func Get(accountID uint, item string, db *gorm.DB) (*Balance, error) {
+	b := &database.Balance{}
+	err := db.Model(&database.Balance{}).Where("id = ? AND item = ?", accountID, item).First(b).Error
 	if err != nil {
 		return nil, err
 	}
 	return &Balance{
-		database.Balance{
-			AccountID: accountID,
-			Item:      item,
-			Quantity:  balance.Quantity + amount,
-		},
+		*b,
 	}, nil
 }
 
-func RemoveItems(accountID uint, item string, amount uint64, db *gorm.DB) (*Balance, error) {
-	balance := &Balance{}
-	err := db.Find(balance).Where("account_id = ? AND item = ?").Error
-
-	if err == gorm.ErrRecordNotFound {
-		return nil, fmt.Errorf("no balance found satisfying account: %d, item: %s", accountID, item)
+func New(accountID uint, item string, startingQuantity uint64, db *gorm.DB) (*Balance, error) {
+	_, err := account.GetByID(accountID, db)
+	if err != nil {
+		return nil, errors.New("account does not exist")
 	}
-	if balance.Quantity < amount {
-		return nil, fmt.Errorf("not enough items to cover amount: %d, have %d", amount, balance.Quantity)
+	b := &database.Balance{
+		AccountID: accountID,
+		Item:      item,
+		Quantity:  startingQuantity,
 	}
-	err = db.Model(&Balance{}).Where("id = ?", balance.ID).Update("quantity", balance.Quantity+amount).Error
+	err = db.Create(b).Error
 	if err != nil {
 		return nil, err
 	}
 	return &Balance{
-		database.Balance{
-			AccountID: accountID,
-			Item:      item,
-			Quantity:  balance.Quantity + amount,
-		},
+		*b,
 	}, nil
+}
+
+func AddItems(accountID uint, item string, quantity uint64, db *gorm.DB) error {
+	tx := db.Model(&database.Balance{}).Where("account_id = ? AND item = ?", accountID, item).Update("quantity", gorm.Expr("quantity + ?", quantity))
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		_, err := New(accountID, item, quantity, db)
+		return err
+	}
+	return nil
+}
+
+func RemoveItems(accountID uint, item string, quantity uint64, db *gorm.DB) error {
+	existing, err := Get(accountID, item, db)
+	if err != nil {
+		return err
+	}
+	if existing.Quantity < quantity {
+		return fmt.Errorf("%d attempted to overdraft %s", accountID, item)
+	}
+	tx := db.Model(&database.Balance{}).Where("account_id = ? AND item = ?", accountID, item).Update("quantity", gorm.Expr("quantity - ?", quantity))
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if tx.RowsAffected == 0 {
+		_, err := New(accountID, item, quantity, db)
+		return err
+	}
+	return nil
 }
