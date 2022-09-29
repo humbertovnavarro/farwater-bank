@@ -1,30 +1,18 @@
 package routes
 
 import (
-	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/humbertovnavarro/farwater-bank/pkg/account"
 	"github.com/humbertovnavarro/farwater-bank/pkg/token"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type VerifyPinRequest struct {
-	Pin          string `json:"pin"`
-	Identity     string `json:"identity"`
-	IdentityType string `json:"identity_type"`
-}
-
-func (r *VerifyPinRequest) Valid() error {
-	if len(r.Pin) < 4 {
-		return errors.New("invalid pin")
-	}
-	if !(r.IdentityType == "uuid" || r.IdentityType == "id") {
-		return errors.New("invalid identity type")
-	}
-	return nil
+	Pin           string `json:"pin"`
+	MinecraftUUID string `json:"minecraft_uuid"`
 }
 
 func VerifyPin(c *gin.Context) {
@@ -33,6 +21,7 @@ func VerifyPin(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized",
 		})
+		logrus.Panic("got wrong token type while trying to verify aa pin")
 		return
 	}
 	request := &VerifyPinRequest{}
@@ -41,49 +30,19 @@ func VerifyPin(c *gin.Context) {
 			"error": "bad request",
 		})
 	}
-	err := request.Valid()
+	db := c.MustGet("db").(*gorm.DB)
+	a, err := account.GetByUUID(request.MinecraftUUID, db)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
 		})
 	}
-	db := c.MustGet("db").(*gorm.DB)
-	switch request.IdentityType {
-	case "uuid":
-		a, err := account.GetByUUID(request.Identity, db)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": "internal server error",
-			})
-			return
-		}
-		if err := a.VerifyPin(request.Pin); err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-	case "id":
-		id, err := strconv.ParseUint(request.Identity, 10, 64)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": "id must be a positive integer",
-			})
-			return
-		}
-		a, err := account.GetByID(uint(id), db)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": "internal server error",
-			})
-			return
-		}
-		if err := a.VerifyPin(request.Pin); err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
+	err = a.VerifyPin(request.Pin)
+	if err != nil {
+		c.AbortWithStatus(http.StatusOK)
+	} else {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
 	}
-	c.AbortWithStatus(http.StatusOK)
 }

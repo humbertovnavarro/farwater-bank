@@ -15,6 +15,8 @@ func New() *gin.Engine {
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})
+	r.POST("/atm/deposit", middleware.AdminAuthentication, routes.Deposit)
+	r.POST("/atm/balance", middleware.AdminAuthentication, routes.Balance)
 	r.POST("/atm/withdrawal", middleware.AdminAuthentication, routes.Withdrawal)
 	r.POST("/atm/register", middleware.AdminAuthentication, routes.Register)
 	r.POST("/atm/verify-pin", middleware.AdminAuthentication, routes.VerifyPin)
