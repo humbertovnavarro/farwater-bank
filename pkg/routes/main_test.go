@@ -1,4 +1,4 @@
-package balance
+package routes
 
 import (
 	"testing"

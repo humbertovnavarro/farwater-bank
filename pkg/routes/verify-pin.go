@@ -15,7 +15,7 @@ import (
 type VerifyPinRequest struct {
 	Pin          string `json:"pin"`
 	Identity     string `json:"identity"`
-	IdentityType string `json:"identityType"`
+	IdentityType string `json:"identity_type"`
 }
 
 func (r *VerifyPinRequest) Valid() error {

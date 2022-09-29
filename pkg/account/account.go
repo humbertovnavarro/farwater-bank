@@ -60,10 +60,7 @@ func Register(username string, password string, pin string, db *gorm.DB) (*Accou
 	if err := db.FirstOrCreate(account, "minecraft_uuid = ?", uuid).Error; err != nil {
 		return nil, err
 	}
-	if err != nil {
-		logrus.Error(err)
-	}
-	return account, nil
+	return account, err
 }
 
 func (a *Account) VerifyPin(pin string) error {

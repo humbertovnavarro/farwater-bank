@@ -6,12 +6,12 @@ import (
 	"github.com/humbertovnavarro/farwater-bank/pkg/account"
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
-	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
+	mocks_test "github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestWithdrawal(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 	a, err := account.GetByID(1, db)
 	if !assert.Nil(t, err) {

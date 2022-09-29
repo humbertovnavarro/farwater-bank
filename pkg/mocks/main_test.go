@@ -1,4 +1,4 @@
-package mocks
+package mocks_test
 
 import (
 	"testing"

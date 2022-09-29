@@ -5,12 +5,12 @@ import (
 
 	"github.com/humbertovnavarro/farwater-bank/pkg/balance"
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
-	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
+	mocks_test "github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTransfer(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 	db.Create(&database.Account{})
 	var accountA uint = 1

@@ -5,8 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/humbertovnavarro/farwater-bank/pkg/account"
-	"github.com/humbertovnavarro/farwater-bank/pkg/middleware"
-	"github.com/humbertovnavarro/farwater-bank/pkg/token"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -17,13 +16,6 @@ type RegistrationRequest struct {
 }
 
 func Register(c *gin.Context) {
-	authorization := c.MustGet("authorization").(*middleware.RequestAuthorization)
-	if authorization.TokenType != token.AdminToken {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "unauthorized",
-		})
-		return
-	}
 	registration := &RegistrationRequest{}
 	if err := c.BindJSON(registration); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -32,10 +24,16 @@ func Register(c *gin.Context) {
 		return
 	}
 	db := c.MustGet("db").(*gorm.DB)
-	_, err := account.Register(registration.Username, registration.Password, registration.Pin, db)
+	a, err := account.Register(registration.Username, registration.Password, registration.Pin, db)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "could not register account",
 		})
+		logrus.Error(err)
+		return
 	}
+	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+		"minecraft_uuid": a.MinecraftUUID,
+		"account_id":     a.ID,
+	})
 }

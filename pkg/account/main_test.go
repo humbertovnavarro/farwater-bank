@@ -3,10 +3,10 @@ package account
 import (
 	"testing"
 
-	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
+	mocks_test "github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 )
 
 func TestMain(m *testing.M) {
-	mocks.MockSetup()
+	mocks_test.MockSetup()
 	m.Run()
 }

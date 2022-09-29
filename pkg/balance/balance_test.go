@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/humbertovnavarro/farwater-bank/pkg/database"
-	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
+	mocks_test "github.com/humbertovnavarro/farwater-bank/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func assertBalance(t *testing.T, b *Balance, quantity uint64) {
 }
 
 func TestNew(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 	b, err := New(1, "minecraft:dirt", 64, db)
 	assert.Nil(t, err)
@@ -31,7 +31,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 	New(1, "minecraft:dirt", 64, db)
 	b, err := Get(1, "minecraft:dirt", db)
@@ -42,7 +42,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestAddItems(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 	err := AddItems(1, "minecraft:dirt", 64, db)
 	assert.Nil(t, err)
@@ -58,7 +58,7 @@ func TestAddItems(t *testing.T) {
 }
 
 func TestRemoveItems(t *testing.T) {
-	db := mocks.NewMockDB()
+	db := mocks_test.NewMockDB()
 	db.Create(&database.Account{})
 
 	err := RemoveItems(1, "minecraft:dirt", 64, db)

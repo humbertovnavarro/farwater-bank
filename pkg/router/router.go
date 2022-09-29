@@ -4,18 +4,19 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/humbertovnavarro/farwater-bank/pkg/mocks"
+	"github.com/humbertovnavarro/farwater-bank/pkg/database"
+	"github.com/humbertovnavarro/farwater-bank/pkg/middleware"
 	"github.com/humbertovnavarro/farwater-bank/pkg/routes"
 )
 
 func New() *gin.Engine {
 	r := gin.Default()
-	db := mocks.NewMockDB()
+	db := database.New()
 	r.Use(func(ctx *gin.Context) {
 		ctx.Set("db", db)
 	})
-	r.POST("/atm/register", routes.Register)
-	r.POST("/atm/verify-pin", routes.VerifyPin)
+	r.POST("/atm/register", middleware.AdminAuthentication, routes.Register)
+	r.POST("/atm/verify-pin", middleware.AdminAuthentication, routes.VerifyPin)
 	return r
 }
 
